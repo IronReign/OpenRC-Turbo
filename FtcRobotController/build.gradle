@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 19
@@ -45,14 +45,14 @@ dependencies {
     stockApi 'org.openftc:hardware-stock:5.4'
     stockApi 'org.openftc:onbotjava-stock:5.4'
     stockApi 'org.openftc:robotserver-stock:5.4'
-    stockApi 'com.android.support:support-compat:26.0.0'
+    stockApi 'androidx.core:core:1.3.1'
 
     /*
      * Things needed regardless of turbo/extremeTurbo/stock
      * that are normally pulled in by modules but must be
      * pulled in here for stock
      */
-    stockApi 'com.android.support:support-annotations:28.0.0'
+    stockApi 'androidx.annotation:annotation:1.1.0'
     stockApi 'org.openftc:tfod-google-ftcsdk-repackaged:5.0' //Specific version of TFOD core library used by FTC SDK
     stockApi 'org.openftc:tfod-ftc-repackaged:5.0' //FTC specific addons to core TFOD lib
 
@@ -60,4 +60,5 @@ dependencies {
      * External
      */
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 }

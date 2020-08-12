@@ -201,15 +201,16 @@ public class RobotControllerAccessPointAssistant extends AccessPointAssistant {
     {
         boolean enabled;
 
-        try {
+     /*   try {
             Method setApConfig = wifiManager.getClass().getMethod("isWifiApEnabled");
             enabled = (Boolean)setApConfig.invoke(wifiManager);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             return false;
         }
-
-        return enabled;
+*/
+     enabled =true;
+     return enabled;
     }
 
     /**

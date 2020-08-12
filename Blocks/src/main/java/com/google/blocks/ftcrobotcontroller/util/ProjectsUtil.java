@@ -12,7 +12,7 @@ import static org.firstinspires.ftc.robotcore.internal.system.AppUtil.BLOCKS_JS_
 import static org.firstinspires.ftc.robotcore.internal.system.AppUtil.BLOCK_OPMODES_DIR;
 
 import android.content.res.AssetManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.Html;
 import android.util.Xml;
 

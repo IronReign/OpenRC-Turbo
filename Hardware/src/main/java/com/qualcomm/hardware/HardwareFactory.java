@@ -31,7 +31,7 @@
 package com.qualcomm.hardware;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.hitechnic.HiTechnicNxtDcMotorController;
 import com.qualcomm.hardware.lynx.LynxAnalogInputController;
