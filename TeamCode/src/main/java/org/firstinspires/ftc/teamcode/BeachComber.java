@@ -29,6 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.content.Context;
+import android.location.Location;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -36,6 +39,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.path.PathLogger;
+import org.firstinspires.ftc.teamcode.util.StickyGamepad;
+
+import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -51,14 +61,32 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
+/**
+ * Controls:
+ * Path Selection:
+ * dpad_right - select next path
+ * dpad_left - select previous path
+ * a - load selected path
+ * x - create new path
+ *
+ * Main Loop:
+ * left_stick_y - drive
+ * right_stick_x - turn
+ * a - add current position to path
+ */
+
 @TeleOp(name="Beach Comber", group="Linear Opmode")
-// b@Disabled
+// @Disabled
 public class BeachComber extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
+    private PathLogger pathLogger;
+    private boolean pathSelected = false;
+    private LocationTrack locationTrack;
+    private StickyGamepad stickyGamepad1;
 
     @Override
     public void runOpMode() {
@@ -76,9 +104,50 @@ public class BeachComber extends LinearOpMode {
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        locationTrack = new LocationTrack(AppUtil.getInstance().getActivity());
+        pathLogger = new PathLogger(locationTrack);
+        stickyGamepad1 = new StickyGamepad(gamepad1);
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
+
+        List<String> pathNames = pathLogger.getPaths();
+        int selectedIndex = 0;
+        while(!pathSelected) {
+            telemetry.addData("Status", "Selecting path (choose a path with dpad_right, dpad_left, and a, or create a new path with x).");
+            if(pathNames.size() > 0) {
+                String pathTelemetry = "";
+                for(String pathName: pathNames)
+                    pathTelemetry += pathName.equals(pathNames.get(selectedIndex)) ? String.format(" **%s** ", pathName) : pathName;
+                telemetry.addData("Paths", pathTelemetry);
+
+                if(selectedIndex > 0 && stickyGamepad1.dpad_left)
+                    selectedIndex--;
+                else if (selectedIndex < pathNames.size() - 1 && stickyGamepad1.dpad_right)
+                    selectedIndex++;
+            } else
+                telemetry.addData("Paths", "No paths created yet.");
+
+            if(stickyGamepad1.a) {
+                try {
+                    pathLogger.loadPath(pathNames.get(selectedIndex));
+                    pathSelected = true;
+                } catch(IOException e) {
+                    telemetry.addData("Paths", "Pathname not found: " + e);
+                }
+            } else if (stickyGamepad1.x) {
+                try {
+                    pathLogger.createPath("", true);
+                    pathSelected = true;
+                } catch(IOException e) {
+                    telemetry.addData("Paths", "Cannot create new path: " + e);
+                }
+            }
+
+            stickyGamepad1.update();
+            telemetry.update();
+        }
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -106,10 +175,15 @@ public class BeachComber extends LinearOpMode {
             leftDrive.setPower(leftPower);
             rightDrive.setPower(rightPower);
 
+            if(stickyGamepad1.a)
+                pathLogger.addLocation();
+
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
             telemetry.update();
         }
+
+        pathLogger.savePath();
     }
 }
