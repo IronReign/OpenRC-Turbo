@@ -18,6 +18,7 @@ public class PathLogger {
     private PrintWriter out;
     private Scanner in;
     private List<double[]> path;
+    private boolean reading;
 
     public PathLogger(LocationTrack locationTrack) {
         this.locationTrack = locationTrack;
@@ -31,6 +32,7 @@ public class PathLogger {
         out = new PrintWriter(new FileWriter(String.format("./paths/%s.txt", pathName)));
         if(logCurrentLocation)
             addLocation();
+        reading = false;
     }
 
     public boolean addLocation() {
@@ -59,6 +61,7 @@ public class PathLogger {
         in = new Scanner(new BufferedReader(new FileReader(String.format("./paths/%s.txt", pathName))));
         while(in.hasNextLine())
             path.add(new double[] {in.nextDouble(), in.nextDouble()});
+        reading = true;
     }
 
     public List<String> getPaths() {
@@ -66,5 +69,9 @@ public class PathLogger {
         for(File file: new File("./paths").listFiles())
             paths.add(file.getName());
         return paths;
+    }
+
+    public boolean getReading() {
+        return reading;
     }
 }

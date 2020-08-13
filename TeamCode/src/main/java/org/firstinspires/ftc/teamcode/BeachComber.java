@@ -175,12 +175,13 @@ public class BeachComber extends LinearOpMode {
             leftDrive.setPower(leftPower);
             rightDrive.setPower(rightPower);
 
-            if(stickyGamepad1.a)
+            if(!pathLogger.getReading() && stickyGamepad1.a)
                 pathLogger.addLocation();
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+            telemetry.addData("Position", "latitude (%.2f), longitude (%.2f)", locationTrack.getLatitude(), locationTrack.getLongitude());
             telemetry.update();
         }
 
