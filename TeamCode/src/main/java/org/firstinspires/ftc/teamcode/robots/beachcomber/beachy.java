@@ -27,11 +27,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.robots.beachcomber;
 
 import android.content.Context;
 import android.location.Location;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -41,11 +42,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
+import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.StickyGamepad;
 
 import java.io.IOException;
 import java.util.List;
+
+import static org.firstinspires.ftc.teamcode.util.Conversions.nearZero;
+import static org.firstinspires.ftc.teamcode.util.Conversions.notdeadzone;
 
 
 /**
@@ -73,11 +79,13 @@ import java.util.List;
  * left_stick_y - drive
  * right_stick_x - turn
  * a - add current position to path
+ * b - calibrate IMU from GPS heading - test run of 5 meters
+ * y - run path from current location todo
  */
 
 @TeleOp(name="Beach Comber", group="Linear Opmode")
 // @Disabled
-public class BeachComber extends LinearOpMode {
+public class beachy extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -88,16 +96,38 @@ public class BeachComber extends LinearOpMode {
     private LocationTrack locationTrack;
     private StickyGamepad stickyGamepad1;
 
+
+    private PoseSkystone.RobotType currentBot = PoseSkystone.RobotType.Beachcomber;
+
+    private PoseSkystone robot;
+
+    private Autonomous auto;
+
+    private boolean active = true;
+    private boolean joystickDriveStarted = false;
+
+    static public int state = 0;
+
+    // drive control variables
+    private double pwrDamper = 1;
+    private double pwrFwd = 0;
+    private double pwrRot = 0;
+    private int direction = 1; // -1 to reverse direction
+    int reverse = 1; //todo: get rid of this and simplify back down to using just direction
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        robot = new PoseSkystone(currentBot);
+        robot.init(this.hardwareMap);
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        leftDrive  = hardwareMap.get(DcMotor.class, "driveLeft");
-        rightDrive = hardwareMap.get(DcMotor.class, "driveRight");
+        leftDrive  = hardwareMap.get(DcMotor.class, "motorBackLeft");
+        rightDrive = hardwareMap.get(DcMotor.class, "motorBackRight");
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -108,10 +138,13 @@ public class BeachComber extends LinearOpMode {
         pathLogger = new PathLogger(locationTrack);
         stickyGamepad1 = new StickyGamepad(gamepad1);
 
+
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
+        /*
         List<String> pathNames = pathLogger.getPaths();
         int selectedIndex = 0;
         while(!pathSelected) {
@@ -149,9 +182,11 @@ public class BeachComber extends LinearOpMode {
             telemetry.update();
         }
 
+         */
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
+/*
             // Setup a variable for each drive wheel to save power level for telemetry
             double leftPower;
             double rightPower;
@@ -174,17 +209,51 @@ public class BeachComber extends LinearOpMode {
             // Send calculated power to wheels
             leftDrive.setPower(leftPower);
             rightDrive.setPower(rightPower);
+            */
+            JoystickDrive();
 
             if(!pathLogger.getReading() && stickyGamepad1.a)
                 pathLogger.addLocation();
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+            telemetry.addData("Motors", "left (%.2f), right (%.2f)", robot.motorBackLeft.getPower(), robot.motorBackRight.getPower());
             telemetry.addData("Position", "latitude (%.2f), longitude (%.2f)", locationTrack.getLatitude(), locationTrack.getLongitude());
             telemetry.update();
+            stickyGamepad1.update();
+            robot.updateSensors(true);
         }
 
         pathLogger.savePath();
     }
+
+private void JoystickDrive(){
+    if (!joystickDriveStarted) {
+        robot.resetMotors(true);
+        robot.setAutonSingleStep(true);
+        joystickDriveStarted = true;
+    }
+
+    //press b to run the IMU from GPS calibration routine
+    if (stickyGamepad1.b) robot.articulate(PoseSkystone.Articulation.calibratePartTwo);
+
+    reverse = -1;
+    pwrDamper = .70;
+
+    pwrFwd = 0;
+    pwrRot = 0;
+
+    if (notdeadzone(gamepad1.left_stick_y))
+        pwrFwd = reverse * direction * pwrDamper * gamepad1.left_stick_y;
+    if (notdeadzone(gamepad1.right_stick_x))
+        pwrRot = pwrDamper * .75 * gamepad1.right_stick_x;
+
+    if (nearZero(pwrFwd) && nearZero(pwrRot) && robot.isNavigating) {
+    } else {
+        robot.isNavigating = false; // take control back from any auton navigation if any joystick input is running
+        robot.autonTurnInitialized = false;
+        robot.driveMixerDiffSteer(pwrFwd * pwrDamper, pwrRot);
+    }
+}
+
 }

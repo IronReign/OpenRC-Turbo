@@ -2,8 +2,8 @@
 <Robot type="FirstInspires-FTC">
 	<LynxUsbDevice name="Control Hub Portal 1" serialNumber="(embedded)" parentModuleAddress="1">
 		<LynxModule name="Expansion Hub 1" port="1">
-			<RevRobotics20HDHexMotor name="driveRight" port="0" />
-			<RevRobotics20HDHexMotor name="driveLeft" port="1" />
+			<RevRobotics20HDHexMotor name="motorBackRight" port="0" />
+			<RevRobotics20HDHexMotor name="motorBackLeft" port="1" />
 
 			<LynxEmbeddedIMU name="baseIMU" port="0" bus="0" />
 		</LynxModule>
