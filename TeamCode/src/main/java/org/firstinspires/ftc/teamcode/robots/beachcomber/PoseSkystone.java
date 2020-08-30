@@ -1,23 +1,16 @@
 package org.firstinspires.ftc.teamcode.robots.beachcomber;
 
-import android.graphics.Bitmap;
 import android.location.Location;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
 import org.firstinspires.ftc.teamcode.util.PIDController;
@@ -25,14 +18,12 @@ import org.firstinspires.ftc.teamcode.util.RC;
 import org.firstinspires.ftc.teamcode.vision.SkystoneGripPipeline;
 import org.firstinspires.ftc.teamcode.vision.TowerHeightPipeline;
 import org.firstinspires.ftc.teamcode.vision.Viewpoint;
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
 
 import static org.firstinspires.ftc.teamcode.util.Conversions.futureTime;
+import static org.firstinspires.ftc.teamcode.util.Conversions.nearZero;
 import static org.firstinspires.ftc.teamcode.util.Conversions.nextCardinal;
 import static org.firstinspires.ftc.teamcode.util.Conversions.wrapAngle;
 import static org.firstinspires.ftc.teamcode.util.Conversions.wrapAngleMinus;
-import static org.firstinspires.ftc.teamcode.vision.Config.*;
 import static org.firstinspires.ftc.teamcode.vision.Config.ALIGN_D;
 import static org.firstinspires.ftc.teamcode.vision.Config.ALIGN_I;
 import static org.firstinspires.ftc.teamcode.vision.Config.ALIGN_P;
@@ -169,7 +160,7 @@ public class PoseSkystone {
     protected MoveMode moveMode;
 
     public enum Articulation { // serves as a desired robot articulation which may include related complex movements of the elbow, lift and supermanLeft
-        calibratePartTwo,
+        alignIMUtoGPS,
         calibrateBasic,
         inprogress, // currently in progress to a final articulation
         manual, // target positions are all being manually overridden
@@ -194,7 +185,8 @@ public class PoseSkystone {
     // roll is in x, pitch is in y, yaw is in z
 
     //GPS stuff
-    Location currentLocation;
+    static Location currentLocation = new Location("");
+    Location startLocation;
     Location nextLocation;
     private PathLogger pathLogger;
     private boolean pathSelected = false;
@@ -382,8 +374,8 @@ public class PoseSkystone {
 
         //gps
         locationTrack = new LocationTrack(RC.c());
-        pathLogger = new PathLogger(locationTrack);
-        currentLocation = new Location("");
+        //pathLogger = new PathLogger(locationTrack);
+        startLocation = new Location("");
         nextLocation = new Location("");
 
     }
@@ -500,14 +492,33 @@ public class PoseSkystone {
         lastXAcceleration = cachedXAcceleration;
         cachedXAcceleration = imu.getLinearAcceleration().xAccel;
 
+    }
+
+    public void updateSensors(boolean isActive) {
+        update(imu, 0, 0, isActive);
+        if (locationTrack.canGetLocation()) //wait until we get a location - robot will stall here if the location provider is not running
+        {
+            currentLocation.setLatitude(locationTrack.getLatitude());
+            currentLocation.setLongitude(locationTrack.getLongitude());
+            currentLocation.setAltitude(locationTrack.getLatitude());
+            currentLocation.setTime(locationTrack.getTime());
+
+        }
         loopTime = System.currentTimeMillis() - lastUpdateTimestamp;
         lastUpdateTimestamp = System.currentTimeMillis();
 
     }
 
-    public void updateSensors(boolean isActive) {
-        update(imu, 0, 0, isActive);
+    public double getLatitude() {
+        return currentLocation.getLatitude();
     }
+    public double getLongitude() {
+        return currentLocation.getLongitude();
+    }
+    public long getTime() {
+        return currentLocation.getTime();
+    }
+
 
 //    public double getDistForwardDist() {
 //        return distForward.getDistance(DistanceUnit.METER);
@@ -688,8 +699,8 @@ public class PoseSkystone {
 
         switch (articulation) {
 
-            case calibratePartTwo:
-                if (calibratePartTwo())
+            case alignIMUtoGPS:
+                if (alignIMUtoGPS())
                     articulation = Articulation.manual;
                 break;
             case calibrateBasic:
@@ -717,63 +728,62 @@ public class PoseSkystone {
     }
 
 
-    int calibrateOtherStage = 0;
+    int alignIMUtoGPSstage = 0;
 
-    public boolean calibratePartTwo() {
-        switch (calibrateOtherStage) {
-            case 0:
+    public boolean alignIMUtoGPS() {
+        switch (alignIMUtoGPSstage) {
+            case 0: //wait with zero movement and see if the imu looks stable
                 setZeroHeading();
-                miniTimer = futureTime(0.2f);
-                calibrateOtherStage++;
+                miniTimer = futureTime(5.0f);
+                if (System.nanoTime() >= miniTimer) {
+                    if (nearZero(getHeading()))
+                        alignIMUtoGPSstage++;
+                    else // heading is drifting - abort to manual drive
+                        articulation = Articulation.manual;
+                }
                 break;
             case 1:
+                setZeroHeading();
+                miniTimer = futureTime(0.2f);
+                alignIMUtoGPSstage++;
+                break;
+            case 2:
                 if (System.nanoTime() >= miniTimer) {
                     //set starting location
-                    if (!locationTrack.canGetLocation()) break; //wait until we get a location
-                    miniTimer = futureTime(15f);
-                    currentLocation.setLatitude(locationTrack.getLatitude());
-                    currentLocation.setLongitude(locationTrack.getLongitude());
-                    //start travelling by IMU steering in the current direction
-                    this.isNavigating = true;
-                    if (driveIMUDistance(.75, 0.0, true, 5)|| System.nanoTime() >= miniTimer) {
-                        miniTimer = futureTime(2.0f);
-                        nextLocation.setLatitude(locationTrack.getLatitude());
-                        nextLocation.setLongitude(locationTrack.getLongitude());
-                        double offsetdegrees = currentLocation.bearingTo(nextLocation);
-                        //reset IMU to align with GPS heading reported for the calibration run
-                        setHeadingBase(offsetdegrees);
-                        stopAll();
-                        calibrateOtherStage=0;
-                        return true;
-                    }
-
-                }
-                break;
-            /* case 2:
-                if(!isBlue) {
-                    if (rotateIMU(270, 2.0)) {
-                        if(crane.setElbowTargetPos(460, 1.0)) {
-                            calibrateOtherStage++;
-                        }
-                    }
-                }
-                else{
-                    if (rotateIMU(90, 2.0)) {
-                        if(crane.setElbowTargetPos(460, 1.0)) {
-                            calibrateOtherStage++;
-                        }
+                    if (locationTrack.canGetLocation()) //wait until we get a location - robot will stall here if the location provider is not running
+                    {
+                        miniTimer = futureTime(10f);
+                        startLocation.setLatitude(locationTrack.getLatitude());
+                        startLocation.setLongitude(locationTrack.getLongitude());
+                        alignIMUtoGPSstage++;
                     }
                 }
                 break;
             case 3:
-                ///todo: DANGER - we are temporarily overriding extendMin so the robat can fully retract to a start-legal position Onece the opmode goes active it is very important that extendMin gets reset to 320
-                if(crane.extendToPositionUnsafe(0, 1)) {
-                    crane.toggleGripper();
-                    calibrateOtherStage = 0;
+                //start travelling by IMU steering in the current direction
+                this.isNavigating = true;
+                driveIMU(kpDrive, kiDrive, kdDrive, .4, 0, false);
+                if (System.nanoTime() >= miniTimer) {
+                    //miniTimer = futureTime(2.0f);
+                    nextLocation.setLatitude(locationTrack.getLatitude());
+                    nextLocation.setLongitude(locationTrack.getLongitude());
+                    double offsetdegrees = startLocation.bearingTo(nextLocation);
+                    //reset IMU to align with GPS heading reported for the calibration run
+                    setHeadingBase(offsetdegrees);
+                    stopAll();
+                    nextLocation = startLocation; //setup for return voyage
+                    alignIMUtoGPSstage++;
+                }
+                break;
+            case 4:
+                driveIMU(kpDrive, kiDrive, kdDrive, .4, currentLocation.bearingTo(nextLocation), false);
+                if(currentLocation.distanceTo(nextLocation)<.2) { //are we there yet?
+                    stopAll();
+                    alignIMUtoGPSstage = 0;
+                    articulation = Articulation.manual;
                     return true;
                 }
-
-             */
+                break;
         }
         return false;
     }

@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import androidx.core.content.ContextCompat;
 import android.widget.Toast;
@@ -32,12 +33,13 @@ public class LocationTrack extends Service implements LocationListener {
     Location loc;
     double latitude;
     double longitude;
+    long loctime;
 
 
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; //10 meters - should always trigger on time
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 00; //10 meters - should always trigger on time
 
 
-    private static final long MIN_TIME_BW_UPDATES = 500; //every half second //1000 * 60 * 1;
+    private static final long MIN_TIME_BW_UPDATES = 0; //every half second //1000 * 60 * 1;
     protected LocationManager locationManager;
 
     public LocationTrack(Context mContext) {
@@ -45,7 +47,7 @@ public class LocationTrack extends Service implements LocationListener {
         getLocation();
     }
 
-    private Location getLocation() {
+    public Location getLocation() {
 
         try {
             locationManager = (LocationManager) mContext
@@ -79,13 +81,14 @@ public class LocationTrack extends Service implements LocationListener {
                     locationManager.requestLocationUpdates(
                             LocationManager.GPS_PROVIDER,
                             MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this, Looper.getMainLooper());
                     if (locationManager != null) {
                         loc = locationManager
                                 .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         if (loc != null) {
                             latitude = loc.getLatitude();
                             longitude = loc.getLongitude();
+                            loctime = loc.getTime();
                         }
                     }
 
@@ -133,17 +136,15 @@ public class LocationTrack extends Service implements LocationListener {
     }
 
     public double getLongitude() {
-        if (loc != null) {
-            longitude = loc.getLongitude();
-        }
         return longitude;
     }
 
     public double getLatitude() {
-        if (loc != null) {
-            latitude = loc.getLatitude();
-        }
         return latitude;
+    }
+
+    public long getTime() {
+        return loctime;
     }
 
     public boolean canGetLocation() {
@@ -202,7 +203,9 @@ public class LocationTrack extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        loctime = location.getTime();
     }
 
     @Override

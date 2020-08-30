@@ -29,26 +29,16 @@
 
 package org.firstinspires.ftc.teamcode.robots.beachcomber;
 
-import android.content.Context;
-import android.location.Location;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
-import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.StickyGamepad;
-
-import java.io.IOException;
-import java.util.List;
 
 import static org.firstinspires.ftc.teamcode.util.Conversions.nearZero;
 import static org.firstinspires.ftc.teamcode.util.Conversions.notdeadzone;
@@ -134,8 +124,8 @@ public class beachy extends LinearOpMode {
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        locationTrack = new LocationTrack(AppUtil.getInstance().getActivity());
-        pathLogger = new PathLogger(locationTrack);
+        //locationTrack = new LocationTrack(AppUtil.getInstance().getActivity());
+        //pathLogger = new PathLogger(locationTrack);
         stickyGamepad1 = new StickyGamepad(gamepad1);
 
 
@@ -212,13 +202,12 @@ public class beachy extends LinearOpMode {
             */
             JoystickDrive();
 
-            if(!pathLogger.getReading() && stickyGamepad1.a)
-                pathLogger.addLocation();
+            //if(!pathLogger.getReading() && stickyGamepad1.a) pathLogger.addLocation();
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", robot.motorBackLeft.getPower(), robot.motorBackRight.getPower());
-            telemetry.addData("Position", "latitude (%.2f), longitude (%.2f)", locationTrack.getLatitude(), locationTrack.getLongitude());
+            telemetry.addData("Position", "latitude (%.7f), longitude (%.7f)", robot.getLatitude(), robot.getLongitude());
             telemetry.update();
             stickyGamepad1.update();
             robot.updateSensors(true);
@@ -235,7 +224,7 @@ private void JoystickDrive(){
     }
 
     //press b to run the IMU from GPS calibration routine
-    if (stickyGamepad1.b) robot.articulate(PoseSkystone.Articulation.calibratePartTwo);
+    if (stickyGamepad1.b) robot.articulate(PoseSkystone.Articulation.alignIMUtoGPS);
 
     reverse = -1;
     pwrDamper = .70;
