@@ -13,12 +13,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
+import org.firstinspires.ftc.teamcode.path.bluesquarepath;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.RC;
 import org.firstinspires.ftc.teamcode.vision.SkystoneGripPipeline;
 import org.firstinspires.ftc.teamcode.vision.TowerHeightPipeline;
 import org.firstinspires.ftc.teamcode.vision.Viewpoint;
 
+import static org.firstinspires.ftc.teamcode.util.Conversions.degreesEastTo360;
 import static org.firstinspires.ftc.teamcode.util.Conversions.futureTime;
 import static org.firstinspires.ftc.teamcode.util.Conversions.nearZero;
 import static org.firstinspires.ftc.teamcode.util.Conversions.nextCardinal;
@@ -160,6 +162,7 @@ public class PoseSkystone {
     protected MoveMode moveMode;
 
     public enum Articulation { // serves as a desired robot articulation which may include related complex movements of the elbow, lift and supermanLeft
+        navigate,
         alignIMUtoGPS,
         calibrateBasic,
         inprogress, // currently in progress to a final articulation
@@ -687,7 +690,7 @@ public class PoseSkystone {
     public boolean articulate(Articulation target, boolean setAndForget) {
         articulate(target);
         return true;
-    }
+}
 
     public Articulation articulate(Articulation target) {
         articulation = target; // store the most recent explict articulation request as our target, allows us
@@ -698,7 +701,10 @@ public class PoseSkystone {
         }
 
         switch (articulation) {
-
+            case navigate:
+                if (navigate())
+                    articulation = Articulation.manual;
+                break;
             case alignIMUtoGPS:
                 if (alignIMUtoGPS())
                     articulation = Articulation.manual;
@@ -728,6 +734,35 @@ public class PoseSkystone {
     }
 
 
+    int travelStage=0;
+    long pathTimer;
+    double pathspeed=0;
+    bluesquarepath path = new bluesquarepath();
+
+    public boolean navigate() {
+
+    switch (travelStage) {
+        case 0:
+            nextLocation = path.getNext();
+            pathTimer = futureTime(5f);
+            pathspeed = 0;
+            travelStage++;
+            break;
+        case 1: //turn to next location
+            if (System.nanoTime() >= pathTimer) { //todo change to a closeness to target angle test
+                    pathspeed = 0.5; //start forward movement
+            }
+            driveIMU(kpDrive, kiDrive, kdDrive, pathspeed, degreesEastTo360(currentLocation.bearingTo(nextLocation)), false);
+            if(currentLocation.distanceTo(nextLocation)<1) { //are we there yet?
+                stopAll();
+                travelStage = 0;
+                if (path.isDone()) return true; //all done
+            }
+            break;
+    }
+    return false;
+}
+
     int alignIMUtoGPSstage = 0;
 
     public boolean alignIMUtoGPS() {
@@ -735,17 +770,15 @@ public class PoseSkystone {
             case 0: //wait with zero movement and see if the imu looks stable
                 setZeroHeading();
                 miniTimer = futureTime(5.0f);
+                alignIMUtoGPSstage++;
+                break;
+            case 1:
                 if (System.nanoTime() >= miniTimer) {
-                    if (nearZero(getHeading()))
+                    if (getHeading()>359 || getHeading()<1)
                         alignIMUtoGPSstage++;
                     else // heading is drifting - abort to manual drive
                         articulation = Articulation.manual;
                 }
-                break;
-            case 1:
-                setZeroHeading();
-                miniTimer = futureTime(0.2f);
-                alignIMUtoGPSstage++;
                 break;
             case 2:
                 if (System.nanoTime() >= miniTimer) {
@@ -772,12 +805,19 @@ public class PoseSkystone {
                     setHeadingBase(offsetdegrees);
                     stopAll();
                     nextLocation = startLocation; //setup for return voyage
+                    miniTimer = futureTime(5f); //allow time for the robot to turn around
                     alignIMUtoGPSstage++;
                 }
                 break;
-            case 4:
-                driveIMU(kpDrive, kiDrive, kdDrive, .4, currentLocation.bearingTo(nextLocation), false);
-                if(currentLocation.distanceTo(nextLocation)<.2) { //are we there yet?
+            case 4: //allow time for the robot to turn around
+                driveIMU(kpDrive, kiDrive, kdDrive, 0, degreesEastTo360(currentLocation.bearingTo(nextLocation)), false);
+                if (System.nanoTime() >= miniTimer) {
+                    alignIMUtoGPSstage++;
+                }
+                break;
+            case 5:
+                driveIMU(kpDrive, kiDrive, kdDrive, .4, degreesEastTo360(currentLocation.bearingTo(nextLocation)), false);
+                if(currentLocation.distanceTo(nextLocation)<1) { //are we there yet?
                     stopAll();
                     alignIMUtoGPSstage = 0;
                     articulation = Articulation.manual;

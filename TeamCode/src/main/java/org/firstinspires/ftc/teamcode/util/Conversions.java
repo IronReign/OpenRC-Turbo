@@ -9,6 +9,12 @@ public class Conversions {
 
     public Conversions(){}
 
+public static double degreesEastTo360(double input){
+        double output;
+        if (input<0) output = input + 360;
+        else output = input;
+        return output;
+}
 
     public static double servoNormalize(int pulse){
         double normalized = (double)pulse;

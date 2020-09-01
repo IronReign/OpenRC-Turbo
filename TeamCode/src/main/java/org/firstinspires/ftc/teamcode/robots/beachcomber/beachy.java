@@ -208,6 +208,7 @@ public class beachy extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", robot.motorBackLeft.getPower(), robot.motorBackRight.getPower());
             telemetry.addData("Position", "latitude (%.7f), longitude (%.7f)", robot.getLatitude(), robot.getLongitude());
+            telemetry.addData("heading", "degrees (%.2f)", robot.getHeading());
             telemetry.update();
             stickyGamepad1.update();
             robot.updateSensors(true);
@@ -226,6 +227,9 @@ private void JoystickDrive(){
     //press b to run the IMU from GPS calibration routine
     if (stickyGamepad1.b) robot.articulate(PoseSkystone.Articulation.alignIMUtoGPS);
 
+    //press x to run the bluesquare navigation route - be sure alignIMUtoGPS has completed
+    if (stickyGamepad1.x) robot.articulate(PoseSkystone.Articulation.navigate);
+
     reverse = -1;
     pwrDamper = .70;
 
@@ -240,6 +244,7 @@ private void JoystickDrive(){
     if (nearZero(pwrFwd) && nearZero(pwrRot) && robot.isNavigating) {
     } else {
         robot.isNavigating = false; // take control back from any auton navigation if any joystick input is running
+        //robot.articulate(PoseSkystone.Articulation.manual); //todo: might lead to bad consequences when state isn't cleaned up in the articulation we just aborted
         robot.autonTurnInitialized = false;
         robot.driveMixerDiffSteer(pwrFwd * pwrDamper, pwrRot);
     }
