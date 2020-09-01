@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
 import org.firstinspires.ftc.teamcode.path.bluesquarepath;
+import org.firstinspires.ftc.teamcode.path.teamnumberpath;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.RC;
 import org.firstinspires.ftc.teamcode.vision.SkystoneGripPipeline;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.vision.TowerHeightPipeline;
 import org.firstinspires.ftc.teamcode.vision.Viewpoint;
 
 import static org.firstinspires.ftc.teamcode.util.Conversions.degreesEastTo360;
+import static org.firstinspires.ftc.teamcode.util.Conversions.diff360;
 import static org.firstinspires.ftc.teamcode.util.Conversions.futureTime;
 import static org.firstinspires.ftc.teamcode.util.Conversions.nearZero;
 import static org.firstinspires.ftc.teamcode.util.Conversions.nextCardinal;
@@ -326,8 +328,10 @@ public class PoseSkystone {
         motorBackRight.setDirection(DcMotor.Direction.FORWARD);
         // motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // magSensor.setMode(DigitalChannel.Mode.INPUT);
 
@@ -702,7 +706,7 @@ public class PoseSkystone {
 
         switch (articulation) {
             case navigate:
-                if (navigate())
+                if (navigate(.5))
                     articulation = Articulation.manual;
                 break;
             case alignIMUtoGPS:
@@ -737,9 +741,12 @@ public class PoseSkystone {
     int travelStage=0;
     long pathTimer;
     double pathspeed=0;
+    double distanceNext = 0;
+    double targetHeading = 0;
     bluesquarepath path = new bluesquarepath();
+    //teamnumberpath path = new teamnumberpath();
 
-    public boolean navigate() {
+    public boolean navigate(double baseSpeed) {
 
     switch (travelStage) {
         case 0:
@@ -749,11 +756,14 @@ public class PoseSkystone {
             travelStage++;
             break;
         case 1: //turn to next location
-            if (System.nanoTime() >= pathTimer) { //todo change to a closeness to target angle test
-                    pathspeed = 0.5; //start forward movement
+            targetHeading = degreesEastTo360(currentLocation.bearingTo(nextLocation));
+            if (Math.abs(diff360(getHeading(), targetHeading))<5) {
+                    pathspeed = baseSpeed; //start forward movement if we are heading within +-5 degrees of target heading
             }
-            driveIMU(kpDrive, kiDrive, kdDrive, pathspeed, degreesEastTo360(currentLocation.bearingTo(nextLocation)), false);
-            if(currentLocation.distanceTo(nextLocation)<1) { //are we there yet?
+            distanceNext = currentLocation.distanceTo(nextLocation);
+            if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .2); //slow down as we near target
+            driveIMU(kpDrive, kiDrive, kdDrive, pathspeed, targetHeading, false);
+            if(currentLocation.distanceTo(nextLocation)<.5) { //are we there yet?
                 stopAll();
                 travelStage = 0;
                 if (path.isDone()) return true; //all done

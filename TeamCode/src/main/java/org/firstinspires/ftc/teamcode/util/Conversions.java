@@ -59,6 +59,13 @@ public static double degreesEastTo360(double input){
         return wrap360(angleCurrent + angleChange);
     }
 
+    //calc absolute angle between two zero to 360 headings
+    //returns negative value if we need to rotate left/counterclockwise
+    public static double diff360(double targetHeading, double currentHeading)
+    {
+        return (currentHeading-targetHeading+540) % 360 - 180;
+    }
+
     public static boolean isNear(double baseValue, double slop){
         if(baseValue <= baseValue+slop || baseValue >= baseValue- slop){
             return true;
