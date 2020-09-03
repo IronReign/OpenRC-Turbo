@@ -743,8 +743,8 @@ public class PoseSkystone {
     double pathspeed=0;
     double distanceNext = 0;
     double targetHeading = 0;
-    bluesquarepath path = new bluesquarepath();
-    //teamnumberpath path = new teamnumberpath();
+    //bluesquarepath path = new bluesquarepath();
+    teamnumberpath path = new teamnumberpath();
 
     public boolean navigate(double baseSpeed) {
 
@@ -757,8 +757,8 @@ public class PoseSkystone {
             break;
         case 1: //turn to next location
             targetHeading = degreesEastTo360(currentLocation.bearingTo(nextLocation));
-            if (Math.abs(diff360(getHeading(), targetHeading))<5) {
-                    pathspeed = baseSpeed; //start forward movement if we are heading within +-5 degrees of target heading
+            if (Math.abs(diff360(getHeading(), targetHeading))<15) {
+                    pathspeed = baseSpeed; //start forward movement if we are heading within +-15 degrees of target heading
             }
             distanceNext = currentLocation.distanceTo(nextLocation);
             if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .2); //slow down as we near target

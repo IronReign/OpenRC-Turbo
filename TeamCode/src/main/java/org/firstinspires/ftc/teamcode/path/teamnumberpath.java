@@ -30,7 +30,7 @@ public class teamnumberpath {
     public Location getNext(){
         switch (character) {
             case 0: //2
-                if (index==16) forward = false;
+                if (index == points2.length-1) forward = false;
                 if (forward) {
                     loc.setLongitude(points2[++index]);
                     loc.setLatitude(points2[++index]);
@@ -47,7 +47,7 @@ public class teamnumberpath {
                 }
                 return loc;
             case 1: //3a
-                if (index==5) forward = false;
+                if (index == points3a.length-1) forward = false;
                 if (forward) {
                     loc.setLongitude(points3a[++index]);
                     loc.setLatitude(points3a[++index]);
@@ -64,7 +64,7 @@ public class teamnumberpath {
                 }
                 return loc;
             case 2: //3b
-                if (index==17) forward = false;
+                if (index == points3b.length-1) forward = false;
                 if (forward) {
                     loc.setLongitude(points3b[++index]);
                     loc.setLatitude(points3b[++index]);
