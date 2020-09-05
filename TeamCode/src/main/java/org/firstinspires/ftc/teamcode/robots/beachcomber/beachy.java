@@ -208,6 +208,8 @@ public class beachy extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", robot.motorBackLeft.getPower(), robot.motorBackRight.getPower());
             telemetry.addData("Position", "latitude (%.7f), longitude (%.7f)", robot.getLatitude(), robot.getLongitude());
+            telemetry.addData("Path", "character (%d), index (%d)", robot.getChar(), robot.getindex());
+
             telemetry.addData("heading", "degrees (%.2f)", robot.getHeading());
             telemetry.update();
             stickyGamepad1.update();
