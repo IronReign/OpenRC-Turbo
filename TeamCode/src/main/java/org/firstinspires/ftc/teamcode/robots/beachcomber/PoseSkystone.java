@@ -737,6 +737,8 @@ public class PoseSkystone {
         return target;
     }
 
+    public int getChar(){return path.getChar();}
+    public int getindex(){return path.getindex();}
 
     int travelStage=0;
     long pathTimer;
@@ -757,8 +759,8 @@ public class PoseSkystone {
             break;
         case 1: //turn to next location
             targetHeading = degreesEastTo360(currentLocation.bearingTo(nextLocation));
-            if (Math.abs(diff360(getHeading(), targetHeading))<15) {
-                    pathspeed = baseSpeed; //start forward movement if we are heading within +-15 degrees of target heading
+            if (Math.abs(diff360(getHeading(), targetHeading))<45) {
+                    pathspeed = baseSpeed; //start forward movement if we are heading within +-45 degrees of target heading
             }
             distanceNext = currentLocation.distanceTo(nextLocation);
             if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .2); //slow down as we near target

@@ -18,7 +18,6 @@ public class teamnumberpath {
     double[] points3b = {-96.84836419619812,32.90269159708182,-96.84835336578691,32.90269197967941,-96.84834557801705,32.9026963583192,-96.84833974392039,32.90270237047054,-96.84833737853108,32.90270946786195,-96.84833869758714,32.90271728635938,-96.84834152763879,32.90272291968464,-96.84834955986443,32.9027298171124,-96.84833915058435,32.90272528824412,-96.84833005048468,32.90272457655716,-96.84832247439677,32.90272695416235,-96.84831685467462,32.90273205654765,-96.84831448883502,32.90273897206084,-96.84831602316638,32.9027462445518,-96.84831972017379,32.90275205824972,-96.84832861217559,32.90275622599906,-96.84834009247744,32.90275584227413,-96.84835004652071,32.90275145986261};
     double[] points68 = {-96.84838162058642,32.90269946710981,-96.84839376491418,32.90270814382628,-96.84841054482496,32.90271958837995,-96.84842488423217,32.9027291279214,-96.84843071176448,32.90273469631649,-96.84843421574406,32.90273801277197,-96.84843562635334,32.90274264401332,-96.84843454539383,32.90274963215212,-96.84843053102625,32.90275760847532,-96.84842330602704,32.90276270150024,-96.84841352169144,32.90276473796586,-96.84840337982249,32.90276364524875,-96.84839499625598,32.90276051380724,-96.8483875801313,32.90275758359248,-96.84838010480379,32.90275739736447,-96.84837263439267,32.90275920346166,-96.84836754358288,32.90276369507007,-96.8483643540917,32.90276937877162,-96.84836353215779,32.90277286678607,-96.84836395644166,32.90277629795661,-96.84836623138639,32.90278189089537,-96.84837124419676,32.90278628499882,-96.84837940205239,32.90279013174376,-96.84838831324434,32.902790333534,-96.84839595276867,32.9027871682847,-96.84840077959693,32.90278178570697,-96.84840296731132,32.90277511972182,-96.84840148975468,32.90276881608001,-96.84839732157701,32.90276254747927,-96.84839079602352,32.90275552448042,-96.84838724790416,32.90274683280874,-96.84838876934717,32.90273813231755,-96.84839272130074,32.90273183338462,-96.84839976455457,32.90272774979918,-96.84840923557746,32.90272495741256,-96.84841937698411,32.9027258650687,-96.8484304146745,32.90273269310066,-96.84844057207467,32.90274007784572,-96.84845205425657,32.90274838558814,-96.8484644153679,32.90275558143805,-96.84847391016071,32.90276241215427,-96.84848010100403,32.90277017392577,-96.84848210759688,32.9027794234656,-96.84847705996927,32.90278831515884,-96.8484662783189,32.90279592141015,-96.84845636233612,32.90279704903175,-96.84844467206467,32.90279373827834,-96.84843870347073,32.90278671636175,-96.84843735492912,32.90277617025149,-96.84844196355965,32.902768019566,-96.84845076511834,32.90276189725228,-96.84846111644227,32.90275854814828,-96.84847059843902,32.90276019719064,-96.84847854758014,32.90276592023645,-96.84848187529948,32.90277461229307,-96.84848013711068,32.90278479365254,-96.84847156236494,32.90279350642481,-96.84846077340175,32.90279815171763,-96.8484477784523,32.90280206060567,-96.84843544429158,32.90280578328134,-96.84842575329604,32.90280876111481,-96.84840901401408,32.90281378687825};
 
-
     private int index = -1;
     private boolean forward = true;
     private boolean done = false;
@@ -27,17 +26,22 @@ public class teamnumberpath {
     int character = 0;
     Location loc = new Location("");
 
+    public int getChar(){return character;}
+    public int getindex(){return index;}
+
     public Location getNext(){
         switch (character) {
             case 0: //2
-                if (index == points2.length-1) forward = false;
+                if ((index+1) * 2 == points2.length) forward = false;
                 if (forward) {
-                    loc.setLongitude(points2[++index]);
-                    loc.setLatitude(points2[++index]);
+                    index++;
+                    loc.setLongitude(points2[index*2]);
+                    loc.setLatitude(points2[index*2+1]);
                 }
                 else { //doubling back to index 2
-                    loc.setLongitude(points2[--index]);
-                    loc.setLatitude(points2[--index]);
+                    index--;
+                    loc.setLongitude(points2[index*2]);
+                    loc.setLatitude(points2[index*2+1]);
                     if (index == 2) {
                         index = -1;
                         character++;
@@ -47,15 +51,17 @@ public class teamnumberpath {
                 }
                 return loc;
             case 1: //3a
-                if (index == points3a.length-1) forward = false;
+                if ((index+1) * 2 == points3a.length) forward = false;
                 if (forward) {
-                    loc.setLongitude(points3a[++index]);
-                    loc.setLatitude(points3a[++index]);
+                    index++;
+                    loc.setLongitude(points3a[index*2]);
+                    loc.setLatitude(points3a[index*2+1]);
                 }
                 else { //doubling back to index 2
-                    loc.setLongitude(points3a[--index]);
-                    loc.setLatitude(points3a[--index]);
-                    if (index == 2) {
+                    index--;
+                    loc.setLongitude(points3a[index*2]);
+                    loc.setLatitude(points3a[index*2+1]);
+                    if (index == 1) {
                         index = -1;
                         character++;
                         forward = true;
@@ -64,14 +70,16 @@ public class teamnumberpath {
                 }
                 return loc;
             case 2: //3b
-                if (index == points3b.length-1) forward = false;
+                if ((index+1) * 2 == points3b.length) forward = false;
                 if (forward) {
-                    loc.setLongitude(points3b[++index]);
-                    loc.setLatitude(points3b[++index]);
+                    index++;
+                    loc.setLongitude(points3b[index*2]);
+                    loc.setLatitude(points3b[index*2+1]);
                 }
                 else { //doubling back all the way to index 0
-                    loc.setLongitude(points3b[--index]);
-                    loc.setLatitude(points3b[--index]);
+                    index--;
+                    loc.setLongitude(points3b[index*2]);
+                    loc.setLatitude(points3b[index*2+1]);
                     if (index == 0) {
                         index = -1;
                         character++;
@@ -81,9 +89,10 @@ public class teamnumberpath {
                 }
                 return loc;
             case 3: //68
-                loc.setLongitude(points68[++index]);
-                loc.setLatitude(points68[++index]);
-                if (index == points68.length-1){
+                index++;
+                loc.setLongitude(points68[index*2]);
+                loc.setLatitude(points68[index*2+1]);
+                if ((index+1) * 2 == points68.length){
                     index = -1;
                     character = 0;
                     done = true;
