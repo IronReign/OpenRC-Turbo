@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
 import org.firstinspires.ftc.teamcode.path.bluesquarepath;
+import org.firstinspires.ftc.teamcode.path.dprgpath;
 import org.firstinspires.ftc.teamcode.path.teamnumberpath;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.RC;
@@ -748,6 +749,7 @@ public class PoseSkystone {
     double targetHeading = 0;
     //bluesquarepath path = new bluesquarepath();
     teamnumberpath path = new teamnumberpath();
+    //dprgpath path = new dprgpath();
 
     public boolean navigate(double baseSpeed) {
 
