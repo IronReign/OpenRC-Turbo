@@ -706,6 +706,7 @@ public class PoseSkystone {
 
         switch (articulation) {
             case navigate:
+                //path.setChar(3); //uncomment to define a single "character" or segment to run
                 if (navigate(.5))
                     articulation = Articulation.manual;
                 break;
