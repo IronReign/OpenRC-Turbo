@@ -27,6 +27,7 @@ public class teamnumberpath {
     Location loc = new Location("");
 
     public int getChar(){return character;}
+    public void setChar(int character){this.character=character;}
     public int getindex(){return index;}
 
     public Location getNext(){
