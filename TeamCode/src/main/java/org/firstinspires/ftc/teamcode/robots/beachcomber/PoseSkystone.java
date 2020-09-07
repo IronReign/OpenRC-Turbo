@@ -754,19 +754,19 @@ public class PoseSkystone {
     switch (travelStage) {
         case 0:
             nextLocation = path.getNext();
-            pathTimer = futureTime(5f);
+            //pathTimer = futureTime(5f);
             pathspeed = 0;
             travelStage++;
             break;
         case 1: //turn to next location
             targetHeading = degreesEastTo360(currentLocation.bearingTo(nextLocation));
-            if (Math.abs(diff360(getHeading(), targetHeading))<45) {
-                    pathspeed = baseSpeed; //start forward movement if we are heading within +-45 degrees of target heading
+            if (Math.abs(diff360(getHeading(), targetHeading))<15) {
+                    pathspeed = baseSpeed; //resume forward movement if we are heading within +-15 degrees of target heading
             }
             distanceNext = currentLocation.distanceTo(nextLocation);
-            if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .2); //slow down as we near target
+            if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .20); //slow down as we near target
             driveIMU(kpDrive, kiDrive, kdDrive, pathspeed, targetHeading, false);
-            if(currentLocation.distanceTo(nextLocation)<.5) { //are we there yet?
+            if(currentLocation.distanceTo(nextLocation)<.25) { //are we there yet?: todo: change this to a test to see if we are trending away from the target
                 stopAll();
                 travelStage = 0;
                 if (path.isDone()) return true; //all done
