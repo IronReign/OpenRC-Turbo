@@ -708,7 +708,7 @@ public class PoseSkystone {
         switch (articulation) {
             case navigate:
                 //path.setChar(3); //uncomment to define a single "character" or segment to run
-                if (navigate(.5))
+                if (navigate(.8))
                     articulation = Articulation.manual;
                 break;
             case alignIMUtoGPS:
@@ -748,8 +748,8 @@ public class PoseSkystone {
     double distanceNext = 0;
     double targetHeading = 0;
     //bluesquarepath path = new bluesquarepath();
-    teamnumberpath path = new teamnumberpath();
-    //dprgpath path = new dprgpath();
+    //teamnumberpath path = new teamnumberpath();
+    dprgpath path = new dprgpath();
 
     public boolean navigate(double baseSpeed) {
 
