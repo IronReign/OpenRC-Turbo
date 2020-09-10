@@ -9,7 +9,8 @@ import android.graphics.Canvas;
 import android.util.Log;
 import android.view.View;
 
-import com.vuforia.CameraCalibration;
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+//import com.vuforia.CameraCalibration;
 import com.vuforia.Image;
 import com.vuforia.Matrix34F;
 import com.vuforia.Tool;
@@ -195,12 +196,15 @@ public class VisionUtils {
             //calculating pixel coordinates of beacon corners
             float[][] corners = new float[4][2];
 
+/* todo - this broke with Skystone 5.5 when they moved the camera calibration class out of vuforia - uncomment these when there is a
+way to get a Vuforia camera calibration object from a rg.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration
+or when the Tool class is compatible with the new packaging - this code is broken while the corners are not projected
 
             corners[0] = Tool.projectPoint(camCal, rawPose, new Vec3F(-127, -0, 0)).getData(); //upper left of beacon
             corners[1] = Tool.projectPoint(camCal, rawPose, new Vec3F(-254, -0, 0)).getData(); //upper right of beacon
             corners[2] = Tool.projectPoint(camCal, rawPose, new Vec3F(-254, -254, 0)).getData(); //lower right of beacon
             corners[3] = Tool.projectPoint(camCal, rawPose, new Vec3F(-127, -254, 0)).getData(); //lower left of beacon
-
+ */
 //            corners[0] = Tool.projectPoint(camCal, rawPose, new Vec3F(-127, 276, 0)).getData(); //upper left of beacon
 //            corners[1] = Tool.projectPoint(camCal, rawPose, new Vec3F(127, 276, 0)).getData(); //upper right of beacon
 //            corners[2] = Tool.projectPoint(camCal, rawPose, new Vec3F(127, -92, 0)).getData(); //lower right of beacon

@@ -136,7 +136,7 @@ public class ColorBlobTest extends LinearOpMode {
             }
             try {
 
-                jewelConfig = VisionUtils.getJewelConfig(getImageFromFrame(frame, PIXEL_FORMAT.RGB565), (VuforiaTrackableDefaultListener) relicCodex.getListener(), vuforia.getCameraCalibration());
+                jewelConfig = VisionUtils.getJewelConfig(getImageFromFrame(frame, PIXEL_FORMAT.RGB565), (VuforiaTrackableDefaultListener) relicCodex.getListener(),  vuforia.getCameraCalibration());
 
                 if (frame != null) {
                     long numImages = frame.getNumImages();
