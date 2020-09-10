@@ -272,42 +272,28 @@ public class CameraManagerImpl extends DestructOnFinalize/*no parent*/ implement
 
     @Override @NonNull public List<LibUsbDevice> getMatchingLibUsbDevices(Function<SerialNumber, Boolean> matcher)
         {
-        if (CameraManagerInternal.avoidKitKatLegacyPaths || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        List<LibUsbDevice> result = new ArrayList<>();
+        for (UsbDevice usbDevice : usbManager.getDeviceList().values())
             {
-            List<LibUsbDevice> result = new ArrayList<>();
-            for (UsbDevice usbDevice : usbManager.getDeviceList().values())
+            SerialNumber candidate = getRealOrVendorProductSerialNumber(usbDevice);
+            if (candidate != null && matcher.apply(candidate))
                 {
-                SerialNumber candidate = getRealOrVendorProductSerialNumber(usbDevice);
-                if (candidate != null && matcher.apply(candidate))
-                    {
-                    LibUsbDevice libUsbDevice = getOrMakeUvcContext().getLibUsbDeviceFromUsbDeviceName(usbDevice.getDeviceName(), true);
-                    result.add(libUsbDevice);
-                    }
+                LibUsbDevice libUsbDevice = getOrMakeUvcContext().getLibUsbDeviceFromUsbDevice(usbDevice, true);
+                result.add(libUsbDevice);
                 }
-            return result;
             }
-        else
-            {
-            return getOrMakeUvcContext().getMatchingLibUsbDevicesKitKat(matcher);
-            }
+        return result;
         }
 
     @Override public void enumerateAttachedSerialNumbers(Consumer<SerialNumber> consumer)
         {
-        if (CameraManagerInternal.avoidKitKatLegacyPaths || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        for (UsbDevice usbDevice : usbManager.getDeviceList().values())
             {
-            for (UsbDevice usbDevice : usbManager.getDeviceList().values())
+            SerialNumber candidate = getRealOrVendorProductSerialNumber(usbDevice);
+            if (candidate != null)
                 {
-                SerialNumber candidate = getRealOrVendorProductSerialNumber(usbDevice);
-                if (candidate != null)
-                    {
-                    consumer.accept(candidate);
-                    }
+                consumer.accept(candidate);
                 }
-            }
-        else
-            {
-            getOrMakeUvcContext().enumerateAttachedSerialNumbersKitKat(consumer);
             }
         }
 

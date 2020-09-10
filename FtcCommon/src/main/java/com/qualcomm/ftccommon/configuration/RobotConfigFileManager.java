@@ -100,7 +100,7 @@ public class RobotConfigFileManager {
         this.activity = activity;
         this.context = appUtil.getApplication();
         this.resources = context.getResources();
-        this.writer = new WriteXMLFileHandler(context);
+        this.writer = new WriteXMLFileHandler();
         this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.noConfig = this.context.getString(R.string.noCurrentConfigFile);
     }

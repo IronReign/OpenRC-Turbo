@@ -306,7 +306,7 @@ public final class CameraCalibrationManager
             parseIgnoreElementChildren(); // all our content is in the attributes
 
             CameraCalibrationIdentity identity = new VendorProductCalibrationIdentity(vid, pid);
-            return new CameraCalibration(identity, parseIntArray(2, size), parseFloatArray(2, focalLength), parseFloatArray(2, principalPoint), parseFloatArray(8, distortionCoefficients), parseBoolean(remove));
+            return new CameraCalibration(identity, parseIntArray(2, size), parseFloatArray(2, focalLength), parseFloatArray(2, principalPoint), parseFloatArray(8, distortionCoefficients), parseBoolean(remove), false);
             }
         catch (RuntimeException e)
             {

@@ -44,6 +44,7 @@ import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.Predicate;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.network.NetworkConnectionHandler;
+import org.firstinspires.ftc.robotcore.internal.network.RobotCoreCommandList;
 import org.firstinspires.ftc.robotcore.internal.network.RobotCoreCommandList.TextToSpeech;
 
 import java.util.ArrayList;
@@ -839,7 +840,13 @@ public class TelemetryImpl implements Telemetry, TelemetryInternal
             }
         }
 
-    //----------------------------------------------------------------------------------------------
+    @Override public void setDisplayFormat(DisplayFormat displayFormat)
+        {
+        NetworkConnectionHandler.getInstance().sendCommand(
+                new Command(RobotCoreCommandList.CMD_SET_TELEMETRY_DISPLAY_FORMAT, displayFormat.toString()));
+        }
+
+        //----------------------------------------------------------------------------------------------
     // Adding and removing data
     //----------------------------------------------------------------------------------------------
 

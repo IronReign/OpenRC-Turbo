@@ -74,7 +74,7 @@ public class EditorSettings {
     }
 
     @SuppressWarnings("unchecked")
-    private EditorSettings(Object map) {
+    private EditorSettings(Map<String, Object> map) {
         settings = (Map<String, Object>) map;
         nameToSettingMap = new HashMap<>();
         for (Setting setting : Setting.values()) {
@@ -100,7 +100,7 @@ public class EditorSettings {
     private static EditorSettings parse(String json) {
         Type type = new TypeToken<Map<String, Object>>() {
         }.getType();
-        return new EditorSettings((OnBotJavaWebInterfaceManager.instance().gson().fromJson(json, type)));
+        return new EditorSettings((Map<String, Object>) OnBotJavaWebInterfaceManager.instance().gson().fromJson(json, type));
     }
 
     private void updateValue(SharedPreferences.Editor edit, String key) {

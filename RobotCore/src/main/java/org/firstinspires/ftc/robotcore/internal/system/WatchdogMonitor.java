@@ -51,7 +51,7 @@ import java.util.concurrent.TimeoutException;
  * {@link WatchdogMonitor} is a simple class that will fire an action after a certain interval
  * if not cancelled first. We use it rather than ThreadPool.getDefault().schedule() (for which
  * we are a drop in replacement in limited contexts) because the latter is horrendously poor
- * at thread management, especially in KitKat.
+ * at thread management.
  *
  * This is similar to {@link OpModeManagerImpl.OpModeStuckCodeMonitor}
  * and probably could be merged therewith.

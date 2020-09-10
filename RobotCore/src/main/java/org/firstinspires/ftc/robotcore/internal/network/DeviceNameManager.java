@@ -39,8 +39,8 @@ import androidx.annotation.NonNull;
  */
 public interface DeviceNameManager {
     @NonNull String getDeviceName();
-    void setDeviceName(@NonNull String deviceName);
-    void resetDeviceName();
+    void setDeviceName(@NonNull String deviceName, boolean sendChangeToSystem) throws InvalidNetworkSettingException;
+    String resetDeviceName(boolean sendChangeToSystem);
     void initializeDeviceNameIfNecessary();
     void registerCallback(DeviceNameListener callback);
     void unregisterCallback(DeviceNameListener callback);

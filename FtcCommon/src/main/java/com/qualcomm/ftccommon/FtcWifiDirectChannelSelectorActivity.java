@@ -183,6 +183,7 @@ public class FtcWifiDirectChannelSelectorActivity extends ThemedActivity impleme
         WifiDirectChannelAndDescription[] items = WifiDirectChannelAndDescription.load().toArray(new WifiDirectChannelAndDescription[0]);
         Arrays.sort(items);
 
+        // TODO(Noah): Get available channel list and set channel via Robocol (minus 5 GHz channels if the local device does not support)
         // if 5GHz is not available, then truncate list of available channels.
         if (WifiUtil.is5GHzAvailable() == false)
             {

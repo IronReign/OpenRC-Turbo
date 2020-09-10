@@ -36,13 +36,11 @@ import androidx.annotation.NonNull;
 
 public class DegeneratePasswordManager implements PasswordManager {
     @Override
-    public boolean setPassword(@NonNull String password) {
-        return true;
-    }
+    public void setPassword(@NonNull String password, boolean sendChangeToSystem) { }
 
     @Override
-    public boolean resetPassword() {
-        return true;
+    public String resetPassword(boolean sendChangeToSystem) {
+        return "";
     }
 
     @Override

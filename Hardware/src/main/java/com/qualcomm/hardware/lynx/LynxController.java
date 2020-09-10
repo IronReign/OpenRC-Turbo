@@ -402,6 +402,12 @@ public abstract class LynxController extends LynxCommExceptionHandler implements
             }
 
         @Override
+        public String getNullableFirmwareVersionString()
+            {
+            return null;
+            }
+
+        @Override
         public String getDeviceName()
             {
             return LynxController.this.module.getDeviceName() + " (pretend)";

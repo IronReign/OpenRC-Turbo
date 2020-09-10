@@ -150,6 +150,12 @@ public class LynxUsbDeviceDelegate implements LynxUsbDevice, HardwareDeviceClose
         {
         delegate.lockNetworkLockAcquisitions();
         }
+
+    @Override public void setThrowOnNetworkLockAcquisition(boolean shouldThrow)
+        {
+        delegate.setThrowOnNetworkLockAcquisition(shouldThrow);
+        }
+
     @Override public void changeModuleAddress(LynxModule module, int newAddress, Runnable runnable)
         {
         assertOpen();
@@ -194,6 +200,12 @@ public class LynxUsbDeviceDelegate implements LynxUsbDevice, HardwareDeviceClose
         {
         assertOpen();
         delegate.transmit(message);
+        }
+
+    @Override public boolean setControlHubModuleAddressIfNecessary() throws RobotCoreException, InterruptedException
+        {
+        assertOpen();
+        return delegate.setControlHubModuleAddressIfNecessary();
         }
 
     //----------------------------------------------------------------------------------------------

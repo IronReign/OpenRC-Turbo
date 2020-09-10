@@ -43,7 +43,6 @@ import androidx.annotation.XmlRes;
 import android.view.ViewGroup;
 
 import com.qualcomm.robotcore.R;
-import com.vuforia.CameraCalibration;
 import com.vuforia.CameraDevice;
 import com.vuforia.Frame;
 
@@ -53,6 +52,7 @@ import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 
 import java.io.File;
 import java.util.Arrays;

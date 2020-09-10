@@ -59,7 +59,7 @@ public class WriteXMLFileHandler {
   private String[] indentation = {"    ", "        ", "            "};
   private int indent = 0;
 
-  public WriteXMLFileHandler(Context context) {
+  public WriteXMLFileHandler() {
     serializer = Xml.newSerializer();
   }
 

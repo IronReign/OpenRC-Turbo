@@ -119,16 +119,7 @@ public class OnBotJavaClassLoader extends ClassLoader implements Closeable
 
     protected static File getDexCacheDir()
         {
-        File dexCache = null;
-        // Using getCodeCacheDir() is logically ideal, but we can't use it everywhere since
-        // it doesn't exist on KitKat. Having variation increases our test matrix, for relatively
-        // little gain (if any? we're careful) so we don't even try.
-        /*if (Build.VERSION.SDK_INT >= 21)
-            {
-            dexCache = AppUtil.getDefContext().getCodeCacheDir();
-            }*/
-            dexCache = AppUtil.getDefContext().getDir("dexopt", Context.MODE_PRIVATE);
-            return dexCache;
+        return AppUtil.getDefContext().getCodeCacheDir();
         }
 
     protected File getDexCache(File jarFile)

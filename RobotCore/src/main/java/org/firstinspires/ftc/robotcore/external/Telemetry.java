@@ -539,6 +539,20 @@ public interface Telemetry
      */
     void setCaptionValueSeparator(String captionValueSeparator);
 
+    enum DisplayFormat
+        {
+        CLASSIC,   // What you've all come to know and love (or not) since 2015
+        MONOSPACE, // Same as classic, except uses a monospaced font so you can column align data
+        HTML;      // Allows use of a subset of HTML tags, enabling "rich text" display (e.g. color & size)
+        }
+
+    /**
+     * Sets the telemetry display format on the Driver Station. See the comments on {@link DisplayFormat}.
+     *
+     * @param displayFormat the telemetry display format the Driver Station should use
+     */
+    void setDisplayFormat(DisplayFormat displayFormat);
+
     //----------------------------------------------------------------------------------------------
     // Properties
     //----------------------------------------------------------------------------------------------

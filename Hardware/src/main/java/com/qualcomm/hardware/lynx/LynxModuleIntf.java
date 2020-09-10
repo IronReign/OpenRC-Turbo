@@ -48,7 +48,6 @@ import com.qualcomm.robotcore.util.SerialNumber;
  */
 public interface LynxModuleIntf extends RobotCoreLynxModule, HardwareDevice, Engagable
     {
-    SerialNumber getSerialNumber();
     <T> T acquireI2cLockWhile(Supplier<T> supplier)                     throws InterruptedException, RobotCoreException, LynxNackException;
     void acquireNetworkTransmissionLock(@NonNull LynxMessage message)   throws InterruptedException;
     void releaseNetworkTransmissionLock(@NonNull LynxMessage message)   throws InterruptedException;

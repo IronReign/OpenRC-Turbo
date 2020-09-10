@@ -71,6 +71,13 @@ public final class WebSocketManagerImpl implements WebSocketManager {
     private final ConcurrentMap<String, Set<FtcWebSocket>> namespaceSubscribersMap = new ConcurrentHashMap<>();
 
     //----------------------------------------------------------------------------------------------
+    // Constructor
+    //----------------------------------------------------------------------------------------------
+    public WebSocketManagerImpl() {
+        AppUtil.getInstance().setWebSocketManager(this);
+    }
+
+    //----------------------------------------------------------------------------------------------
     // WebSocketManager Method Overrides
     //----------------------------------------------------------------------------------------------
 

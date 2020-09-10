@@ -46,8 +46,6 @@ import com.qualcomm.robotcore.hardware.usb.RobotUsbDevice;
 import com.qualcomm.robotcore.hardware.usb.RobotUsbModule;
 import com.qualcomm.robotcore.util.GlobalWarningSource;
 
-import java.util.List;
-
 /**
  * The working interface to Lynx USB Devices. Separating out the interface like this allows
  * us to create delegators where we need to.
@@ -79,6 +77,8 @@ public interface LynxUsbDevice extends RobotUsbModule, GlobalWarningSource, Robo
     void releaseNetworkTransmissionLock(@NonNull LynxMessage message) throws InterruptedException;
 
     void transmit(LynxMessage message) throws InterruptedException;
+
+    boolean setControlHubModuleAddressIfNecessary() throws InterruptedException, RobotCoreException;
 
     LynxUsbDeviceImpl getDelegationTarget();
     }

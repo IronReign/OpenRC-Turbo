@@ -77,12 +77,6 @@ public class RobocolDatagramSocket {
     }
   }
 
-  public void connect(InetAddress connectAddress) throws SocketException {
-    InetSocketAddress addr = new InetSocketAddress(connectAddress, RobocolConfig.PORT_NUMBER);
-    RobotLog.dd(TAG, "RobocolDatagramSocket connected to " + addr.toString());
-    socket.connect(addr);
-  }
-
   public void close() {
     synchronized (this.bindCloseLock) {
       state = State.CLOSED;
