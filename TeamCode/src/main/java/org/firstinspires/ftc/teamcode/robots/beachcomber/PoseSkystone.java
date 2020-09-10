@@ -766,7 +766,7 @@ public class PoseSkystone {
                     pathspeed = baseSpeed; //resume forward movement if we are heading within +-15 degrees of target heading
             }
             distanceNext = currentLocation.distanceTo(nextLocation);
-            if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .20); //slow down as we near target
+            if(distanceNext<1) pathspeed = Math.max(pathspeed * distanceNext, .50); //slow down as we near target
             driveIMU(kpDrive, kiDrive, kdDrive, pathspeed, targetHeading, false);
             if(currentLocation.distanceTo(nextLocation)<.25) { //are we there yet?: todo: change this to a test to see if we are trending away from the target
                 stopAll();
