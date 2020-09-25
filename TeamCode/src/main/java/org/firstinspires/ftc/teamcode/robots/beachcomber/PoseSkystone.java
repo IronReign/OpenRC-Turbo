@@ -12,9 +12,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.LocationTrack;
+import org.firstinspires.ftc.teamcode.path.NavPath;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
 import org.firstinspires.ftc.teamcode.path.bluesquarepath;
 import org.firstinspires.ftc.teamcode.path.dprgpath;
+import org.firstinspires.ftc.teamcode.path.staypath;
 import org.firstinspires.ftc.teamcode.path.teamnumberpath;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 import org.firstinspires.ftc.teamcode.util.RC;
@@ -25,7 +27,6 @@ import org.firstinspires.ftc.teamcode.vision.Viewpoint;
 import static org.firstinspires.ftc.teamcode.util.Conversions.degreesEastTo360;
 import static org.firstinspires.ftc.teamcode.util.Conversions.diff360;
 import static org.firstinspires.ftc.teamcode.util.Conversions.futureTime;
-import static org.firstinspires.ftc.teamcode.util.Conversions.nearZero;
 import static org.firstinspires.ftc.teamcode.util.Conversions.nextCardinal;
 import static org.firstinspires.ftc.teamcode.util.Conversions.wrapAngle;
 import static org.firstinspires.ftc.teamcode.util.Conversions.wrapAngleMinus;
@@ -739,7 +740,7 @@ public class PoseSkystone {
         return target;
     }
 
-    public int getChar(){return path.getChar();}
+    public int getSegment(){return path.getSegment();}
     public int getindex(){return path.getindex();}
 
     int travelStage=0;
@@ -747,9 +748,38 @@ public class PoseSkystone {
     double pathspeed=0;
     double distanceNext = 0;
     double targetHeading = 0;
-    //bluesquarepath path = new bluesquarepath();
-    //teamnumberpath path = new teamnumberpath();
-    dprgpath path = new dprgpath();
+    NavPath path = new NavPath();
+    NavPath bluesquare = new bluesquarepath();
+    NavPath team = new teamnumberpath();
+    NavPath dprg = new dprgpath();
+    NavPath stay = new staypath();
+
+    public enum Paths {TeamNumber, DPRG, Square, Stay}
+    //private Paths selectedpath;
+
+    //public void nextPath(){}
+
+    public String getActivePathName(){
+        return path.getPathName();
+    }
+
+    public void setActivePath(Paths paths){
+        switch (paths){
+            case TeamNumber:
+                path=team;
+                break;
+            case DPRG:
+                path=dprg;
+                break;
+            case Square:
+                path=bluesquare;
+                break;
+            case Stay:
+                stay.setLocation(getLatitude(),getLongitude());
+                path=stay;
+                break;
+        }
+    }
 
     public boolean navigate(double baseSpeed) {
 
@@ -777,6 +807,8 @@ public class PoseSkystone {
     }
     return false;
 }
+
+public double getDistanceNext(){return distanceNext;}
 
     int alignIMUtoGPSstage = 0;
 

@@ -11,7 +11,7 @@ situated at Northhaven park's softball field
     // points68 does terminates at the last point
     //see the original kml files in ftc2020/beachcomber in google earth
  */
-public class teamnumberpath {
+public class teamnumberpath extends NavPath {
 
     double[] points2 = {-96.84830341261102,32.90264785232041,-96.84831936220702,32.90265891740987,-96.84834341640983,32.90267411910521,-96.84832990550969,32.90267568052462,-96.84831782972182,32.90267737080097,-96.84830178723318,32.90268002790953,-96.84828674335144,32.9026828871812,-96.84827998976289,32.90268464654374,-96.8482745406418,32.90268733735981,-96.8482698907474,32.90269036195378,-96.8482671043385,32.90269360675244,-96.84826485184983,32.90269752095781,-96.84826353137828,32.90270165698768,-96.84826327654072,32.90270623805571,-96.84826434961785,32.90270969958844,-96.84826648750752,32.90271327099173,-96.84826968992687,32.9027168405439,-96.84827342268703,32.90271962711762,-96.84827808443355,32.90272140657274,-96.84828394157537,32.90272229016672,-96.84828873142666,32.90272205839272,-96.84829338600733,32.90272093307171,-96.84829777362729,32.90271947304721,-96.84830149453494,32.90271745557023,-96.84830388505077,32.90271555213036,-96.84830614194829,32.90271342547736};
     double[] points3a = {-96.84834933871083,32.90267834576805,-96.84835952591497,32.90268496805377,-96.84836952902621,32.90269149098371,-96.84837833287621,32.90269768059785,-96.84838273997642,32.90270287165632,-96.848384951596,32.90270873733758,-96.84838476509945,32.90271410408812,-96.84838317877583,32.90271880247185,-96.84838079183443,32.9027228314448};
@@ -23,15 +23,23 @@ public class teamnumberpath {
     private boolean done = false;
 
     double[] points = {-96.84060471247678,32.86930628121518,-96.84061961847621,32.86924701358645,-96.84054823419424,32.8692343320722,-96.84053344789302,32.869295362769,-96.84060471247678,32.86930628121518};
-    int character = 0;
+    int segment = 0;
     Location loc = new Location("");
 
-    public int getChar(){return character;}
-    public void setChar(int character){this.character=character;}
+    @Override
+    public int getSegment() {
+        return segment;
+    }
+
+    @Override
+    public void setSegment(int segment) {
+        this.segment =segment;
+    }
+
     public int getindex(){return index;}
 
     public Location getNext(){
-        switch (character) {
+        switch (segment) {
             case 0: //2
                 if ((index+1) * 2 == points2.length) forward = false;
                 if (forward) {
@@ -45,7 +53,7 @@ public class teamnumberpath {
                     loc.setLatitude(points2[index*2+1]);
                     if (index == 2) {
                         index = -1;
-                        character++;
+                        segment++;
                         forward = true;
                         return loc;
                     }
@@ -64,7 +72,7 @@ public class teamnumberpath {
                     loc.setLatitude(points3a[index*2+1]);
                     if (index == 1) {
                         index = -1;
-                        character++;
+                        segment++;
                         forward = true;
                         return loc;
                     }
@@ -83,7 +91,7 @@ public class teamnumberpath {
                     loc.setLatitude(points3b[index*2+1]);
                     if (index == 0) {
                         index = -1;
-                        character++;
+                        segment++;
                         forward = true;
                         return loc;
                     }
@@ -95,7 +103,7 @@ public class teamnumberpath {
                 loc.setLatitude(points68[index*2+1]);
                 if ((index+1) * 2 == points68.length){
                     index = -1;
-                    character = 0;
+                    segment = 0;
                     done = true;
                 }
                 return loc;
@@ -105,6 +113,11 @@ public class teamnumberpath {
 
     public boolean isDone() {
         return done;
+    }
+
+    @Override
+    public String getPathName() {
+        return "6832";
     }
 
 }

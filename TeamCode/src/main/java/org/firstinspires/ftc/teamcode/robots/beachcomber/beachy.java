@@ -29,13 +29,17 @@
 
 package org.firstinspires.ftc.teamcode.robots.beachcomber;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
 import org.firstinspires.ftc.teamcode.util.StickyGamepad;
@@ -75,6 +79,7 @@ import static org.firstinspires.ftc.teamcode.util.Conversions.notdeadzone;
 
 @TeleOp(name="Beach Comber", group="Linear Opmode")
 // @Disabled
+@Config
 public class beachy extends LinearOpMode {
 
     // Declare OpMode members.
@@ -85,6 +90,7 @@ public class beachy extends LinearOpMode {
     private boolean pathSelected = false;
     private LocationTrack locationTrack;
     private StickyGamepad stickyGamepad1;
+    static public int nextPath = 0; //blank means don't set a new path - expect this to be set directly by typing into dashboard
 
 
     private PoseSkystone.RobotType currentBot = PoseSkystone.RobotType.Beachcomber;
@@ -107,6 +113,8 @@ public class beachy extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -208,9 +216,10 @@ public class beachy extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", robot.motorBackLeft.getPower(), robot.motorBackRight.getPower());
             telemetry.addData("Position", "latitude (%.7f), longitude (%.7f)", robot.getLatitude(), robot.getLongitude());
-            telemetry.addData("Path", "character (%d), index (%d)", robot.getChar(), robot.getindex());
-
+            telemetry.addData("Path: ", "%s, segment (%d), index (%d)", robot.getActivePathName(), robot.getSegment(), robot.getindex());
+            telemetry.addData("Target distance: ", "(%.2f)m", robot.getDistanceNext());
             telemetry.addData("heading", "degrees (%.2f)", robot.getHeading());
+            telemetry.addData("voltage", "%.1f volts", () -> getBatteryVoltage());
             telemetry.update();
             stickyGamepad1.update();
             robot.updateSensors(true);
@@ -226,11 +235,18 @@ private void JoystickDrive(){
         joystickDriveStarted = true;
     }
 
-    //press b to run the IMU from GPS calibration routine
-    if (stickyGamepad1.b) robot.articulate(PoseSkystone.Articulation.alignIMUtoGPS);
+    //press b to run the IMU to GPS alignment routine
+    if (stickyGamepad1.b || nextPath==8) robot.articulate(PoseSkystone.Articulation.alignIMUtoGPS);
 
-    //press x to run the bluesquare navigation route - be sure alignIMUtoGPS has completed
-    if (stickyGamepad1.x) robot.articulate(PoseSkystone.Articulation.navigate);
+    //press x to run the currently set navigation route - be sure alignIMUtoGPS has completed
+    if (stickyGamepad1.x || nextPath==9) robot.articulate(PoseSkystone.Articulation.navigate);
+
+    if(stickyGamepad1.dpad_left || nextPath==1) robot.setActivePath(PoseSkystone.Paths.TeamNumber);
+    if(stickyGamepad1.dpad_right || nextPath==2) robot.setActivePath(PoseSkystone.Paths.DPRG);
+    if(stickyGamepad1.dpad_up || nextPath==3) robot.setActivePath(PoseSkystone.Paths.Square);
+    if(stickyGamepad1.dpad_down || nextPath==4) robot.setActivePath(PoseSkystone.Paths.Stay);
+
+    nextPath=0; //reset nextPath
 
     reverse = -1;
     pwrDamper = .70;
@@ -251,5 +267,15 @@ private void JoystickDrive(){
         robot.driveMixerDiffSteer(pwrFwd * pwrDamper, pwrRot);
     }
 }
-
+    // Computes the current battery voltage
+    double getBatteryVoltage() {
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        return result;
+    }
 }
