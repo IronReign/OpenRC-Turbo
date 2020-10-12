@@ -219,7 +219,7 @@ public class beachy extends LinearOpMode {
             telemetry.addData("Path: ", "%s, segment (%d), index (%d)", robot.getActivePathName(), robot.getSegment(), robot.getindex());
             telemetry.addData("Target distance: ", "(%.2f)m", robot.getDistanceNext());
             telemetry.addData("heading", "degrees (%.2f)", robot.getHeading());
-            telemetry.addData("voltage", "%.1f volts", () -> getBatteryVoltage());
+            telemetry.addData("voltage", "%.1f volts", getBatteryVoltage());
             telemetry.update();
             stickyGamepad1.update();
             robot.updateSensors(true);
@@ -245,6 +245,8 @@ private void JoystickDrive(){
     if(stickyGamepad1.dpad_right || nextPath==2) robot.setActivePath(PoseSkystone.Paths.DPRG);
     if(stickyGamepad1.dpad_up || nextPath==3) robot.setActivePath(PoseSkystone.Paths.Square);
     if(stickyGamepad1.dpad_down || nextPath==4) robot.setActivePath(PoseSkystone.Paths.Stay);
+    if(nextPath==5) robot.setActivePath(PoseSkystone.Paths.PingPong);
+    if(nextPath==6) robot.setActivePath(PoseSkystone.Paths.Infinity);
 
     nextPath=0; //reset nextPath
 

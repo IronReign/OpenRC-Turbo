@@ -16,6 +16,8 @@ import org.firstinspires.ftc.teamcode.path.NavPath;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
 import org.firstinspires.ftc.teamcode.path.bluesquarepath;
 import org.firstinspires.ftc.teamcode.path.dprgpath;
+import org.firstinspires.ftc.teamcode.path.infinitypath;
+import org.firstinspires.ftc.teamcode.path.pingpongpath;
 import org.firstinspires.ftc.teamcode.path.staypath;
 import org.firstinspires.ftc.teamcode.path.teamnumberpath;
 import org.firstinspires.ftc.teamcode.util.PIDController;
@@ -331,9 +333,11 @@ public class PoseSkystone {
         // motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBackLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // magSensor.setMode(DigitalChannel.Mode.INPUT);
 
@@ -753,8 +757,10 @@ public class PoseSkystone {
     NavPath team = new teamnumberpath();
     NavPath dprg = new dprgpath();
     NavPath stay = new staypath();
+    NavPath pingpong = new pingpongpath();
+    NavPath infinity = new infinitypath();
 
-    public enum Paths {TeamNumber, DPRG, Square, Stay}
+    public enum Paths {TeamNumber, DPRG, Square, Stay, PingPong, Infinity}
     //private Paths selectedpath;
 
     //public void nextPath(){}
@@ -777,6 +783,12 @@ public class PoseSkystone {
             case Stay:
                 stay.setLocation(getLatitude(),getLongitude());
                 path=stay;
+                break;
+            case PingPong:
+                path=pingpong;
+                break;
+            case Infinity:
+                path=infinity;
                 break;
         }
     }

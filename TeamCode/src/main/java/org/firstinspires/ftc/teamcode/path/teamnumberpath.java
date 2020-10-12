@@ -70,7 +70,7 @@ public class teamnumberpath extends NavPath {
                     index--;
                     loc.setLongitude(points3a[index*2]);
                     loc.setLatitude(points3a[index*2+1]);
-                    if (index == 1) {
+                    if (index == 2) {
                         index = -1;
                         segment++;
                         forward = true;
