@@ -6,11 +6,15 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.TempUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Temperature;
 import org.firstinspires.ftc.teamcode.LocationTrack;
 import org.firstinspires.ftc.teamcode.path.NavPath;
 import org.firstinspires.ftc.teamcode.path.PathLogger;
@@ -59,11 +63,13 @@ public class PoseSkystone {
     PIDController alignPID = new PIDController(ALIGN_P, ALIGN_I, ALIGN_D);
     private int autoAlignStage = 0;
     FtcDashboard dashboard;
-
+    public static double leftAmps;
+    public static double rightAmps;
     public static double kpDrive = 0.02; // proportional constant multiplier
     public static double kiDrive = 0.01; // integral constant multiplier
     public static double kdDrive = 0.68; // derivative constant multiplier //increase
     public static double cutout = 1.0;
+    public static double alignedHeading = 0;
 
     public double headingP = 0.007;
     public double headingD = 0;
@@ -71,15 +77,11 @@ public class PoseSkystone {
     public double balanceP = .35;
     public double balanceD = 3.1444;
 
-    public double stoneLengthMeters = 8 * 25.4 / 1000;
-    public long stoneLengthTicks = (long) stoneLengthMeters * forwardTPM;
-    public double foundationToNearestStoneMeters = 1.75; // tune depending on final arm position.
-
     // All Actuators
-    private DcMotor motorFrontRight = null;
-    public DcMotor motorBackLeft = null;
-    private DcMotor motorFrontLeft = null;
-    public DcMotor motorBackRight = null;
+    private DcMotorEx motorFrontRight = null;
+    public DcMotorEx motorBackLeft = null;
+    private DcMotorEx motorFrontLeft = null;
+    public DcMotorEx motorBackRight = null;
 //    private DcMotor elbow = null;
 //    private DcMotor extender = null;
 //    private DcMotor turretMotor = null;
@@ -97,6 +99,9 @@ public class PoseSkystone {
     // All sensors
     BNO055IMU imu; // Inertial Measurement Unit: Accelerometer and Gyroscope combination sensor
     BNO055IMU turretIMU;
+    Temperature temp; //imu temperatiure
+    Temperature calibrateTemp; //temperature at time of imu calibration
+
 //    DistanceSensor distForward;
 //    DistanceSensor distLeft;
 //    DistanceSensor distRight;
@@ -320,9 +325,9 @@ public class PoseSkystone {
 //        this.gripperRight = this.hwMap.get(AnalogInput.class, "gripperRight"); // Use generic form of device mapping
 
         // motorFrontLeft = hwMap.get(DcMotor.class, "motorFrontLeft");
-        motorBackLeft = hwMap.get(DcMotor.class, "motorBackLeft");
+        motorBackLeft = hwMap.get(DcMotorEx.class, "motorBackLeft");
         // motorFrontRight = hwMap.get(DcMotor.class, "motorFrontRight");
-        motorBackRight = hwMap.get(DcMotor.class, "motorBackRight");
+        motorBackRight = hwMap.get(DcMotorEx.class, "motorBackRight");
 //        turretMotor = hwMap.get(DcMotor.class, "turret");
         // elbow.setDirection(DcMotor.Direction.REVERSE);
 
@@ -434,6 +439,7 @@ public class PoseSkystone {
      */
     public void update(BNO055IMU imu, long ticksLeft, long ticksRight, boolean isActive) {
         long currentTime = System.nanoTime();
+        temp = imu.getTemperature();
 
         imuAngles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
         if (!initialized) {
@@ -517,6 +523,8 @@ public class PoseSkystone {
             currentLocation.setTime(locationTrack.getTime());
 
         }
+        leftAmps = motorBackLeft.getCurrent(CurrentUnit.AMPS);
+        rightAmps = motorBackRight.getCurrent(CurrentUnit.AMPS);
         loopTime = System.currentTimeMillis() - lastUpdateTimestamp;
         lastUpdateTimestamp = System.currentTimeMillis();
 
@@ -531,6 +539,9 @@ public class PoseSkystone {
     public long getTime() {
         return currentLocation.getTime();
     }
+    public double getTemperature(){return temp.toUnit(TempUnit.CELSIUS).temperature;}
+    public double getLeftAmps(){return leftAmps;}
+    public double getRightAmps(){return rightAmps;}
 
 
 //    public double getDistForwardDist() {
@@ -862,6 +873,7 @@ public double getDistanceNext(){return distanceNext;}
                     double offsetdegrees = startLocation.bearingTo(nextLocation);
                     //reset IMU to align with GPS heading reported for the calibration run
                     setHeadingBase(offsetdegrees);
+                    alignedHeading = offsetdegrees; //store aligned heading for imu drift comparison
                     stopAll();
                     nextLocation = startLocation; //setup for return voyage
                     miniTimer = futureTime(5f); //allow time for the robot to turn around

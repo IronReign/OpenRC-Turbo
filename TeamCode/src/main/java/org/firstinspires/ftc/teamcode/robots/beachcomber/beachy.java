@@ -220,6 +220,7 @@ public class beachy extends LinearOpMode {
             telemetry.addData("Target distance: ", "(%.2f)m", robot.getDistanceNext());
             telemetry.addData("heading", "degrees (%.2f)", robot.getHeading());
             telemetry.addData("voltage", "%.1f volts", getBatteryVoltage());
+            telemetry.addData("imuTemp", "%.1f volts", robot.getTemperature());
             telemetry.update();
             stickyGamepad1.update();
             robot.updateSensors(true);
